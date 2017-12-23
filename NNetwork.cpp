@@ -58,14 +58,24 @@ void NNetwork::train() {
         std::cout << "Running EPOCH " << echpochmak << std::endl;
         shuffle();
         float error = 0.0f;
+        int good = 0;
+        int bad = 0;
         for (int i = 0; i<data.size(); i++)
         {
-            display_progress(i, data.size());
             vec1d& x = data[i];
             vec1d& y = validata[i];
+            int real_class = get_class(y);
             predict(x);
+            int predicted_class = get_class();
             error += cross_entropy(y);
             backpropagate(y);
+            if (predicted_class != real_class){
+                bad++;
+            }
+            else{
+                good++;
+            }
+            display_progress(i, data.size(), good, bad);
         }
         error /= data.size();
         error = -error;
@@ -74,7 +84,8 @@ void NNetwork::train() {
             finished = true;
         }
         float accuracy = Utils::validate(*this, validation_set, validation_labels);
-        std::cout << "Accuracy on validation set is " << accuracy << std::endl;
+        std::cout << "Accuracy on training set is " << (float)good/(good+bad) << "\n";
+        std::cout << "Accuracy on validation set is " << accuracy << "\n";
         std::cout << "CE error: " << error << std::endl;
     }
     std::cout << "Done" << std::endl;
@@ -148,18 +159,25 @@ void NNetwork::backpropagate(vec1d &y) {
 float NNetwork::cross_entropy(vec1d &y) {
     float error = 0.0f;
     for (int i = 0; i < output_size; i++) {
-        error += log(output[i]) * y[i];
+        //nan values fix:
+        float epsilon = 0.00001f;
+        if (output[i] > epsilon)
+            error += log(output[i]) * y[i];
+        else
+            error += log(epsilon) * y[i];
     }
     return error;
 }
 
-void NNetwork::display_progress(int i, unsigned long size) {
+void NNetwork::display_progress(int i, unsigned int size, int good, int bad) {
     int stride = 10; // show message each 10%
     int portion = size / stride;
     int rem = i % portion;
     if (rem == 0){
         int percentage = i / portion * stride;
-        std::cout << percentage << "% Done" << std::endl;
+        std::cout << percentage << "% Done. ";
+        float ratio = (float)good/(good+bad);
+        std::cout << "Processed " << good+bad << " images, " << good << " correct guesses. Current accuracy (correct/total) is " << ratio << std::endl;
     }
 }
 
@@ -223,6 +241,11 @@ NNetwork::NNetwork(std::string filename) {
 int NNetwork::get_class() {
     auto _max = std::max_element(output.begin(), output.end());
     return static_cast<int>(std::distance(output.begin(), _max));
+}
+
+int NNetwork::get_class(vec1d& x) {
+    auto _max = std::max_element(x.begin(), x.end());
+    return static_cast<int>(std::distance(x.begin(), _max));
 }
 
 void NNetwork::softmax() {

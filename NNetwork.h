@@ -78,7 +78,9 @@ private:
 
     float cross_entropy(vec1d &vector);
 
-    void display_progress(int i, unsigned long size);
+    void display_progress(int i, unsigned int size, int good, int bad);
+
+    int get_class(vec1d &x);
 };
 
 
