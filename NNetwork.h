@@ -6,7 +6,7 @@
 #define TEST_NNETWORK_H
 #include "typedefs.h"
 #include <random>
-#include <gtest/gtest_prod.h>
+//#include <gtest/gtest_prod.h>
 
 class NNetwork {
 public:
@@ -18,7 +18,7 @@ public:
      * Data is considered to be a 2D array of floats representing the image set
      * (image = 1d array, e.g. OpenCVed pic stored in Mat, parsed to plain array/stdvec)
      */
-    void setup(vec2d &_data, vec2d& _validata, int _epoch_num, float _lrn_rate, float _epsilon);
+    void setup(vec2d &_data, vec2d& _validata, int _epoch_num, float _lrn_rate, float _epsilon, vec2d& _validation_set, ivec1d& _validation_labels);
 
     void train();
 
@@ -29,10 +29,12 @@ public:
     int get_class();
 
 private:
-    FRIEND_TEST(NNetworkTest, Forward);
+    //FRIEND_TEST(NNetworkTest, Forward);
 
     vec2d data;
     vec2d validata;
+    vec2d validation_set;
+    ivec1d validation_labels;
 
     int epoch_num;
     float learn_rate, epsilon;

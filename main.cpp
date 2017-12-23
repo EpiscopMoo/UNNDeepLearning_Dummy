@@ -5,6 +5,12 @@
 #include "NNetwork.h"
 #include "Utils.h"
 
+#define DEFAULT_HIDDEN_NUM 200
+#define DEFAULT_LRN_RATE 0.01
+#define DEFAULT_CE_THRESHOLD 0.005
+#define DEFAULT_ECHPOCHMAK 10
+#define DEFAULT_SAVE_FILENAME "vanilla.params"
+
 int main(int argc, char** argv) {
 
     if (argc > 1 && (strcmp(argv[1], "-h") == 0 ||strcmp(argv[1], "--help") == 0)){
@@ -19,10 +25,10 @@ int main(int argc, char** argv) {
         std::cout << "\tVL - path to file with validation labels\n";
         std::cout << "\tS - path to file in which network params will be stored\n";
         std::cout << "For H L Err and Epch zero value can be used. In this case default values are as following:\n";
-        std::cout << "\t200 neurons in hidden layer\n";
-        std::cout << "\t0.01 as learning rate for gradient descend opt method\n";
-        std::cout << "\t0.005 as desired cross-entropy accuracy\n";
-        std::cout << "\t10 train epochs\n";
+        std::cout << "\t" << DEFAULT_HIDDEN_NUM << " neurons in hidden layer\n";
+        std::cout << "\t" << DEFAULT_LRN_RATE << " as learning rate for gradient descend opt method\n";
+        std::cout << "\t" << DEFAULT_CE_THRESHOLD << " as desired cross-entropy accuracy\n";
+        std::cout << "\t" << DEFAULT_ECHPOCHMAK << " train epochs\n";
         std::cout << "If S is not specified, default name \"vanilla.params\" will be used" << std::endl;
         return 0;
     }
@@ -33,15 +39,15 @@ int main(int argc, char** argv) {
     int epochs = atoi(argv[4]);
 
     hidden_count = hidden_count == 0 ? 200 : hidden_count;
-    learning_rate = learning_rate == 0.0f ? 0.01f : learning_rate;
-    ce_error = ce_error == 0.0f ? 0.005f : ce_error;
-    epochs = epochs == 0 ? 10 : epochs;
+    learning_rate = learning_rate == 0.0f ? (float)DEFAULT_LRN_RATE : learning_rate;
+    ce_error = ce_error == 0.0f ? (float)DEFAULT_CE_THRESHOLD : ce_error;
+    epochs = epochs == 0 ? DEFAULT_ECHPOCHMAK : epochs;
 
     std::string train_set(argv[5]);
     std::string train_labels(argv[6]);
     std::string test_set(argv[7]);
     std::string test_labels(argv[8]);
-    std::string save_filename = "vanilla.params";
+    std::string save_filename = DEFAULT_SAVE_FILENAME;
     if (argc > 9){
         save_filename = argv[9];
     }
@@ -51,17 +57,12 @@ int main(int argc, char** argv) {
         vec2d data = Utils::read_Mnist(train_set);
         ivec1d labels = Utils::read_Mnist_Label(train_labels); //e.g. 1 8 0 4 8 7 5 3 etc
         vec2d validata = Utils::convert_labels(labels); //labels transformed into NN output, e.g. {0,1,0,0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0,1,0,0}
-        network.setup(data, validata, epochs, learning_rate, ce_error);
+        vec2d validation_set = Utils::read_Mnist(test_set);
+        ivec1d validation_labels = Utils::read_Mnist_Label(test_labels);
+        network.setup(data, validata, epochs, learning_rate, ce_error, validation_set, validation_labels);
     }
     network.train();
-    network.save(save_filename);
-    std::cout << "Network is trained. Saving net parameters to file..." << std::endl;
-    std::cout << "Validation" << std::endl;
-
-    vec2d validation_set = Utils::read_Mnist(test_set);
-    ivec1d validation_labels = Utils::read_Mnist_Label(test_labels);
-    float accuracy = Utils::validate(network, validation_set, validation_labels);
-    std::cout << "Accurac on validation set is " << accuracy << std::endl;
+    //network.save(save_filename);
 
     return 0;
 }

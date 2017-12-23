@@ -6,6 +6,7 @@
 #include <iostream>
 #include <fstream>
 #include "NNetwork.h"
+#include "Utils.h"
 
 NNetwork::NNetwork(int in_count, int hidden_count, int out_count) :
         input_size(in_count),
@@ -38,18 +39,21 @@ NNetwork::NNetwork(int in_count, int hidden_count, int out_count) :
     std::for_each(fromhidden_bs.begin(), fromhidden_bs.end(), [this](float& x){x=rand0to1();});
 }
 
-void NNetwork::setup(vec2d &_data, vec2d& _validata, int _epoch_num, float _lrn_rate, float _epsilon)
+void NNetwork::setup(vec2d &_data, vec2d& _validata, int _epoch_num, float _lrn_rate, float _epsilon, vec2d& _validation_set, ivec1d& _validation_labels)
 {
     data = _data;
     validata = _validata;
     epoch_num  =_epoch_num;
     learn_rate = _lrn_rate;
     epsilon = _epsilon;
+    validation_set = _validation_set;
+    validation_labels = _validation_labels;
 }
 
 void NNetwork::train() {
 
-    for (int echpochmak = 0; echpochmak < epoch_num; echpochmak++)
+    bool finished = false;
+    for (int echpochmak = 0; echpochmak < epoch_num && not finished; echpochmak++)
     {
         std::cout << "Running EPOCH " << echpochmak << std::endl;
         shuffle();
@@ -67,9 +71,13 @@ void NNetwork::train() {
         error = -error;
         if (error < epsilon){
             std::cout << "Cross-entropy desired accuracy reached: " << error << " Stopping." << std::endl;
-            return;
+            finished = true;
         }
+        float accuracy = Utils::validate(*this, validation_set, validation_labels);
+        std::cout << "Accuracy on validation set is " << accuracy << std::endl;
+        std::cout << "CE error: " << error << std::endl;
     }
+    std::cout << "Done" << std::endl;
 
 }
 
