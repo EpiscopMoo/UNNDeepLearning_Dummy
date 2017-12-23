@@ -2,33 +2,31 @@
 
 Руководство по запуску:
 1. Клонировать, собрать cmake-ом или создать проект в студии на основе CMakeLists.
-2. Добавить пути к библиотекам GTEST, PTHREADS, если они отсутствуют в путях ОС по умолчанию (у меня они раскиданы в /usr/lib).
-Если не планируется запускать тесты, то второй проект можно выпилить из смака, дабы не мешался. Основная программа никаких потусторонних зависимостей не тянет.
-3. Запустить программу можно с ключом --help или -h, чтобы вывелось описание необходимых аргументов командной строки.
+2. Запустить программу можно с ключом --help или -h, чтобы вывелось описание необходимых аргументов командной строки.
 
-Usage: <exec_name> H L Err Epch TD TL VD VL S
-
-  Replace each var with corresponding argument, where
+Использование: <exec_name> H L Err Epch TD TL VD VL S
+Замените каждую из переменных на соответствующее значение, согласно описаниям ниже:
   
   
-  	H - number of neurons in hidden layer
-  	L - learning rate for gradient descend opt method
-  	Err - desired cross-entropy accuracy
-  	Epch - number of epochs
-  	TD - path to file with train data
-  	TL - path to file with train labels
-  	VD - path to file with validation data
-  	VL - path to file with validation labels
-  	S - path to file in which network params will be stored
+  	H - число нейронов в скрытом слое
+  	L - learning rate
+  	Err - остановочная точность кросс-энтропии
+  	Epch - число эпох
+  	TD - путь к файлу с тренировочными данными
+  	TL - путь к файлу с метками для тренировочных данных
+  	VD - путь к файлу с тестовыми данными
+  	VL - путь к файлу с метками для тестовых данных
+  	S - путь и имя файла, в который будут сохранены параметры сети (НЕ ИСПОЛЬЗУЕТСЯ)
     
   
-  For H L Err and Epch zero value can be used. In this case default values are as following:
+  Для H L Err и Epch можно использовать нулевые значения. Тогда используются значения по умолчанию:
   
   
-  	200 neurons in hidden layer
-  	0.01 as learning rate for gradient descend opt method
-  	0.005 as desired cross-entropy accuracy
-  	10 train epochs
-    
-    
-  If S is not specified, default name "vanilla.params" will be used
+  	200 нейронов в скрытом слое
+  	0.01 learning rate
+  	0.005 остановочная точность кросс-энтропии
+  	10 тренировочных эпох
+        
+  Пример: run.exe 300 0.05 0 0 ../data/train_images ../data/train_labels ../data/test_images ../data/test_labels
+  
+  Отчёт приложен в папке с кодом.
