@@ -53,7 +53,7 @@ void NNetwork::setup(vec2d &_data, vec2d& _validata, int _epoch_num, float _lrn_
 void NNetwork::train() {
 
     bool finished = false;
-    for (int echpochmak = 0; echpochmak < epoch_num && not finished; echpochmak++)
+    for (int echpochmak = 0; echpochmak < epoch_num && !finished; echpochmak++)
     {
         std::cout << "Running EPOCH " << echpochmak << std::endl;
         shuffle();
